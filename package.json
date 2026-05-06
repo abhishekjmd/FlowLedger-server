@@ -5,7 +5,8 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc && tsc-alias",
-		"start": "yarn build && node dist/index.js",
+		"prestart": "yarn build",
+		"start": "node dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"docs": "echo 'No docs build configured'",
 		"lint": "eslint \"src/**/*.ts\" --fix",

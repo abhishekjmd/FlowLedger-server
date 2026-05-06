@@ -1,4 +1,13 @@
-import 'module-alias/register';
+import path from "path";
+const moduleAlias = require("module-alias") as {
+    addAlias: (alias: string, target: string) => void;
+};
+
+const aliasRoot = path.basename(__dirname) === "dist"
+    ? __dirname
+    : path.resolve(__dirname, "../src");
+moduleAlias.addAlias("@", aliasRoot);
+
 import { createApp } from "@/app";
 import { CONFIG } from "@/config";
 import { initCronJobs } from "@/lib/cron/cron.service";
