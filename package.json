@@ -4,7 +4,7 @@
 	"description": "Expense managing application backend",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc && tsc-alias",
+		"build": "tsc",
 		"start": "node dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"lint": "eslint \"src/**/*.ts\" --fix",
@@ -23,6 +23,7 @@
 		"firebase": "^10.4.0",
 		"helmet": "^7.1.0",
 		"jsonwebtoken": "^9.0.2",
+		"module-alias": "^2.3.4",
 		"multer": "^1.4.5-lts.1",
 		"node-cron": "^4.2.1",
 		"nodemailer": "^6.9.4",
@@ -37,6 +38,7 @@
 		"@types/cors": "^2.8.13",
 		"@types/express": "^4.17.25",
 		"@types/jsonwebtoken": "^9.0.2",
+		"@types/module-alias": "^2.0.4",
 		"@types/multer": "^1.4.7",
 		"@types/node": "^20.19.39",
 		"@types/node-cron": "^3.0.11",
@@ -51,8 +53,10 @@
 		"nodemon": "^3.0.1",
 		"prettier": "^3.0.3",
 		"prisma": "^5.22.0",
-		"tsc-alias": "^1.8.17",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3"
+	},
+	"_moduleAliases": {
+		"@": "dist"
 	}
 }
