@@ -1,4 +1,4 @@
-import "module-alias/register";
+import 'module-alias/register';
 import { createApp } from "@/app";
 import { CONFIG } from "@/config";
 import { initCronJobs } from "@/lib/cron/cron.service";
