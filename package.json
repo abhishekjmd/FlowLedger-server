@@ -5,8 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc && tsc-alias",
-		"prestart": "yarn build",
-		"start": "node dist/index.js",
+		"start": "yarn build && node dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"docs": "echo 'No docs build configured'",
 		"lint": "eslint \"src/**/*.ts\" --fix",
@@ -57,8 +56,5 @@
 		"tsc-alias": "^1.8.17",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3"
-	},
-	"_moduleAliases": {
-		"@": "."
 	}
 }
