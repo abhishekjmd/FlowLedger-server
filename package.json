@@ -4,7 +4,7 @@
 	"description": "Expense managing application backend",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && tsc-alias",
 		"start": "node dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"lint": "eslint \"src/**/*.ts\" --fix",
@@ -51,6 +51,7 @@
 		"nodemon": "^3.0.1",
 		"prettier": "^3.0.3",
 		"prisma": "^5.22.0",
+		"tsc-alias": "^1.8.17",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3"
 	}
