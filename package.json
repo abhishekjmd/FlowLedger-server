@@ -4,8 +4,8 @@
 	"description": "Expense managing application backend",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "yarn install --frozen-lockfile && ./node_modules/.bin/prisma generate --schema ./prisma/schema.prisma && tsc && tsc-alias",
-		"start": "node /opt/render/project/dist/index.js",
+		"build": "yarn install --frozen-lockfile && prisma generate --schema ./prisma/schema.prisma && prisma migrate deploy --schema ./prisma/schema.prisma && tsc && tsc-alias",
+		"start": "node dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"docs": "echo 'No docs build configured'",
 		"lint": "eslint \"src/**/*.ts\" --fix",
@@ -21,7 +21,6 @@
 		"cors": "^2.8.5",
 		"dotenv": "^16.1.4",
 		"express": "^4.18.2",
-		"firebase": "^10.4.0",
 		"helmet": "^7.1.0",
 		"jsonwebtoken": "^9.0.2",
 		"module-alias": "^2.3.4",
@@ -34,7 +33,8 @@
 		"tsc-alias": "^1.8.17",
 		"typescript": "^5.9.3",
 		"zod": "^3.22.2",
-		"prisma": "^5.22.0"
+		"prisma": "^5.22.0",
+		"@supabase/supabase-js": "^2.45.0"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.0",

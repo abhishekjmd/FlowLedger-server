@@ -12,13 +12,8 @@ const envSchema = z.object({
 	MAIL_PORT: z.string(),
 	MAIL_USER: z.string(),
 	MAIL_PASS: z.string(),
-	FIREBASE_API_KEY: z.string(),
-	FIREBASE_AUTH_DOMAIN: z.string(),
-	FIREBASE_PROJECT_ID: z.string(),
-	FIREBASE_STORAGE_BUCKET: z.string(),
-	FIREBASE_MESSAGING_SENDER_ID: z.string(),
-	FIREBASE_APP_ID: z.string(),
-	FIREBASE_MEASUREMENT_ID: z.string().optional(),
+	SUPABASE_URL: z.string(),
+	SUPABASE_ANON_KEY: z.string(),
 	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
@@ -41,14 +36,9 @@ export const CONFIG = {
 		user: env.MAIL_USER,
 		pass: env.MAIL_PASS,
 	},
-	firebase: {
-		apiKey: env.FIREBASE_API_KEY,
-		authDomain: env.FIREBASE_AUTH_DOMAIN,
-		projectId: env.FIREBASE_PROJECT_ID,
-		storageBucket: env.FIREBASE_STORAGE_BUCKET,
-		messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
-		appId: env.FIREBASE_APP_ID,
-		measurementId: env.FIREBASE_MEASUREMENT_ID,
+	supabase: {
+		url: env.SUPABASE_URL,
+		anonKey: env.SUPABASE_ANON_KEY,
 	},
 	isDev: env.NODE_ENV === "development",
 	isProd: env.NODE_ENV === "production",

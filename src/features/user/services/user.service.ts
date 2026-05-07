@@ -1,4 +1,4 @@
-import { firebaseService } from "@/lib/firebase/firebase.service";
+import { supabaseService } from "@/lib/supabase/supabase.service";
 import prisma from "@/lib/database/prisma";
 import { HttpException } from "@/middleware/error.middleware";
 
@@ -46,19 +46,19 @@ export class UserService {
 		// Clean up old avatar if exists
 		if (user.profile.avatar_filename) {
 			try {
-				await firebaseService.deleteImage(user.profile.avatar_filename);
+				await supabaseService.deleteImage(user.profile.avatar_filename);
 			} catch (e) {
 				console.error("Failed to delete old avatar", e);
 			}
 		}
 
-		const fileName = `avatars/${user.username}-${user.id}-${Date.now()}`;
+		const fileName = `${user.username}-${user.id}-${Date.now()}`;
 
-		const uploaded = await firebaseService.uploadImageBuffer(avatar.buffer, fileName, {
-			contentType: avatar.mimetype,
-		});
-
-		const url = await firebaseService.getFileUrl(uploaded.ref.fullPath);
+		const url = await supabaseService.uploadImage(
+			avatar.buffer,
+			fileName,
+			avatar.mimetype,
+		);
 
 		return await prisma.profile.update({
 			where: { user_id: userId },
