@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "prisma generate --schema ./prisma/schema.prisma && tsc && tsc-alias",
-		"start": "cd /app && node dist/index.js",
+		"start": "node /opt/render/project/dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"docs": "echo 'No docs build configured'",
 		"lint": "eslint \"src/**/*.ts\" --fix",
