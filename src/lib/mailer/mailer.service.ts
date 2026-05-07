@@ -23,8 +23,8 @@ export class MailerService {
 		} else {
 			this.transporter = nodemailer.createTransport({
 				host: CONFIG.mail.host,
-				port: CONFIG.mail.port,
-				secure: CONFIG.mail.port === 465,
+      port: 465,
+      secure: true,
 				auth: {
 					user: CONFIG.mail.user,
 					pass: CONFIG.mail.pass,
