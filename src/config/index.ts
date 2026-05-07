@@ -8,10 +8,7 @@ const envSchema = z.object({
 	DATABASE_URL: z.string(),
 	JWT_ACCESS_SECRET: z.string(),
 	JWT_REFRESH_SECRET: z.string(),
-	MAIL_HOST: z.string(),
-	MAIL_PORT: z.string(),
-	MAIL_USER: z.string(),
-	MAIL_PASS: z.string(),
+	RESEND_API_KEY: z.string(),
 	SUPABASE_URL: z.string(),
 	SUPABASE_ANON_KEY: z.string(),
 	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
@@ -31,10 +28,7 @@ export const CONFIG = {
 		refreshExpiresIn: "7d",
 	},
 	mail: {
-		host: env.MAIL_HOST,
-		port: parseInt(env.MAIL_PORT, 10),
-		user: env.MAIL_USER,
-		pass: env.MAIL_PASS,
+		resendApiKey: env.RESEND_API_KEY,
 	},
 	supabase: {
 		url: env.SUPABASE_URL,
