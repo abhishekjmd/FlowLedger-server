@@ -4,7 +4,7 @@
 	"description": "Expense managing application backend",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "yarn prisma generate --schema ./prisma/schema.prisma && tsc && tsc-alias",
+		"build": "yarn install --frozen-lockfile && ./node_modules/.bin/prisma generate --schema ./prisma/schema.prisma && tsc && tsc-alias",
 		"start": "node /opt/render/project/dist/index.js",
 		"dev": "tsx watch src/index.ts",
 		"docs": "echo 'No docs build configured'",
