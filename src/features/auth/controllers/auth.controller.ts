@@ -89,6 +89,7 @@ export class AuthController {
 					verified: user.verified,
 				},
 				accessToken,
+				refreshToken,
 			}),
 		);
 	});
@@ -107,7 +108,12 @@ export class AuthController {
 	 *             schema: { $ref: '#/components/schemas/ApiResponse' }
 	 */
 	refresh = asyncHandler(async (req: Request, res: Response) => {
-		const oldRefreshToken = req.cookies.refreshToken;
+		const oldRefreshToken =
+			req.cookies.refreshToken ||
+			req.body?.refreshToken ||
+			(req.headers.authorization?.startsWith("Bearer ")
+				? req.headers.authorization.slice(7)
+				: undefined);
 		if (!oldRefreshToken) {
 			res.status(401).json(ApiResponse.error("No refresh token provided", 401));
 			return;
@@ -116,7 +122,7 @@ export class AuthController {
 		const { accessToken, refreshToken } = await authService.refresh(oldRefreshToken);
 
 		res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
-		res.status(200).json(ApiResponse.success("Token refreshed", { accessToken }));
+		res.status(200).json(ApiResponse.success("Token refreshed", { accessToken, refreshToken }));
 	});
 
 	/**
@@ -130,7 +136,12 @@ export class AuthController {
 	 *         description: Logged out successfully
 	 */
 	logout = asyncHandler(async (req: Request, res: Response) => {
-		const refreshToken = req.cookies.refreshToken;
+		const refreshToken =
+			req.cookies.refreshToken ||
+			req.body?.refreshToken ||
+			(req.headers.authorization?.startsWith("Bearer ")
+				? req.headers.authorization.slice(7)
+				: undefined);
 		if (refreshToken) {
 			await authService.logout(refreshToken);
 		}
