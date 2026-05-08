@@ -3,8 +3,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,macos,linux,node,react,reactnative,windows
 
 
-migrations
-
 ### Linux ###
 *~
 
