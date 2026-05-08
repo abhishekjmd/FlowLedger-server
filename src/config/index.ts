@@ -6,7 +6,6 @@ config();
 const envSchema = z.object({
 	PORT: z.string().default("8000"),
 	DATABASE_URL: z.string(),
-	RESEND_API_KEY: z.string(),
 	SUPABASE_URL: z.string(),
 	SUPABASE_ANON_KEY: z.string(),
 	CLERK_SECRET_KEY: z.string(),

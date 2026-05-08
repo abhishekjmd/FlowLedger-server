@@ -27,7 +27,6 @@
 		"node-cron": "^4.2.1",
 		"prisma": "^5.22.0",
 		"random-material-color": "^1.0.5",
-		"resend": "^6.12.3",
 		"swagger-jsdoc": "^6.2.8",
 		"swagger-ui-express": "^5.0.1",
 		"tsc-alias": "^1.8.17",
