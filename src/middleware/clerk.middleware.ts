@@ -25,7 +25,10 @@ const createUniqueUsername = async (base: string): Promise<string> => {
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const auth = getAuth(req);
-		if (!auth?.userId) throw new HttpException("Unauthorized", 401);
+		if (!auth?.userId) {
+			console.warn("[AUTH WARNING] No userId in auth object. Session claims:", auth?.sessionClaims);
+			throw new HttpException("Unauthorized: Missing UserID", 401);
+		}
 
 		const clerkUserId = auth.userId;
 		let email =
@@ -80,8 +83,10 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 
 		res.locals.user = user;
 		next();
-	} catch (error) {
-		next(error instanceof HttpException ? error : new HttpException("Unauthorized", 401));
+	} catch (error: any) {
+		const message = error instanceof HttpException ? error.message : (error.message || "Unauthorized");
+		console.error("[AUTH ERROR]", error);
+		next(new HttpException(message, 401));
 	}
 };
 
