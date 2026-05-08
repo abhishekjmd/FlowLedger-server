@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import cookieParser from "cookie-parser";
+import { clerkMiddleware } from "@clerk/express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { loggerMiddleware } from "@/middleware/logger.middleware";
@@ -21,7 +21,7 @@ export const createApp = (): Express => {
 	app.use(cors({ origin: true, credentials: true }));
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
-	app.use(cookieParser());
+	app.use(clerkMiddleware());
 	app.use(loggerMiddleware);
 
 	// Swagger Documentation

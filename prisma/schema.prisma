@@ -16,6 +16,7 @@ datasource db {
 
 model User {
   id                Int      @id @default(autoincrement())
+  clerk_id          String?  @unique
   email             String   @unique
   name              String
   username          String   @unique
@@ -160,16 +161,6 @@ model Profile {
   user            User     @relation(fields: [user_id], references: [id])
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
-
-  @@index([user_id])
-}
-
-model Session {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  valid      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 
   @@index([user_id])
 }

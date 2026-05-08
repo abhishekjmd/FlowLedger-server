@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { analyticsController } from "../controllers/analytics.controller";
-import { authMiddleware } from "@/features/auth/middlewares/auth.middleware";
+import { requireAuth } from "@/middleware/clerk.middleware";
 
 const router = Router();
 
-router.use(authMiddleware);
+router.use(requireAuth);
 
 router.get("/monthly", analyticsController.getMonthly);
 router.get("/categories", analyticsController.getCategories);

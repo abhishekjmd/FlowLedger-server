@@ -3,6 +3,17 @@ import prisma from "@/lib/database/prisma";
 import { HttpException } from "@/middleware/error.middleware";
 
 export class UserService {
+	async getUserByClerkId(clerkId: string) {
+		const user = await prisma.user.findUnique({
+			where: { clerk_id: clerkId },
+			include: { profile: true },
+		});
+		if (!user) throw new HttpException("User not found", 404);
+
+		const { password: _, verification_code: __, verification_expires: ___, ...safeUser } = user;
+		return safeUser;
+	}
+
 	async getUser(userId: number) {
 		const user = await prisma.user.findUnique({
 			where: { id: userId },

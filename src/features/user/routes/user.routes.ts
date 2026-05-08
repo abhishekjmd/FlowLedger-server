@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { userController } from "../controllers/user.controller";
-import { authMiddleware } from "@/features/auth/middlewares/auth.middleware";
+import { requireAuth } from "@/middleware/clerk.middleware";
 
 const router = Router();
 const upload = multer({
@@ -16,7 +16,7 @@ const upload = multer({
 });
 
 // All routes are protected
-router.use(authMiddleware);
+router.use(requireAuth);
 
 router.get("/me", userController.me);
 router.patch("/profile", userController.updateProfile);

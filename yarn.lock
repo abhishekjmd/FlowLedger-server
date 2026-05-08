@@ -39,6 +39,35 @@
     call-me-maybe "^1.0.1"
     z-schema "^5.0.1"
 
+"@clerk/backend@^3.4.6":
+  version "3.4.6"
+  resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-3.4.6.tgz#3d2f4de05b0f5d4467fa7d44fa4f01f32e7d2054"
+  integrity sha512-OYRYr8hM/ewWQHFKISrIq/au/9/GsyppqRXmivshWnwMegd9cc2UVirFBouoH5Vv1R92ErqrgF/jYS+FkFEJZw==
+  dependencies:
+    "@clerk/shared" "^4.10.1"
+    standardwebhooks "^1.0.0"
+    tslib "2.8.1"
+
+"@clerk/express@^2.1.14":
+  version "2.1.14"
+  resolved "https://registry.yarnpkg.com/@clerk/express/-/express-2.1.14.tgz#38bbb76846e87aa859a57764ec1198ec73812141"
+  integrity sha512-S/LfjTezITz+x1NrmoGctEUnmrghtD+cE/eTR8KPRBPi6BtVcAHOkjBJsp3kkDQIYRg7Xib/u2y0WTuH1IDjmA==
+  dependencies:
+    "@clerk/backend" "^3.4.6"
+    "@clerk/shared" "^4.10.1"
+    tslib "2.8.1"
+
+"@clerk/shared@^4.10.1":
+  version "4.10.1"
+  resolved "https://registry.yarnpkg.com/@clerk/shared/-/shared-4.10.1.tgz#dea728c2ef5c881837073cb5d33690e4cceae141"
+  integrity sha512-Vdl/Ox5rh9NpeIYgZbV2Y0zfm4AjStRB9DbNWxK7PDXFDHuYwjlOYFXwFULFqa0kbRs9M1Q+oR7hujAtesZ36w==
+  dependencies:
+    "@tanstack/query-core" "^5.100.6"
+    dequal "2.0.3"
+    glob-to-regexp "0.4.1"
+    js-cookie "3.0.5"
+    std-env "^3.9.0"
+
 "@esbuild/aix-ppc64@0.27.7":
   version "0.27.7"
   resolved "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.7.tgz"
@@ -372,6 +401,11 @@
     "@supabase/realtime-js" "2.105.3"
     "@supabase/storage-js" "2.105.3"
 
+"@tanstack/query-core@^5.100.6":
+  version "5.100.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.100.9.tgz#dcf44ef25cf42a4da229bcab1d8d33e80a740a99"
+  integrity sha512-SJSFw1S8+kQ0+knv/XGfrbocWoAlT7vDKsSImtLx3ZPQmEcR46hkDjLSvynSy25N8Ms4tIEini1FuBd5k7IscQ==
+
 "@types/bcrypt@^5.0.0":
   version "5.0.0"
   resolved "https://registry.npmjs.org/@types/bcrypt/-/bcrypt-5.0.0.tgz"
@@ -467,13 +501,6 @@
   integrity sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==
   dependencies:
     undici-types "~6.21.0"
-
-"@types/nodemailer@^6.4.9":
-  version "6.4.9"
-  resolved "https://registry.npmjs.org/@types/nodemailer/-/nodemailer-6.4.9.tgz"
-  integrity sha512-XYG8Gv+sHjaOtUpiuytahMy2mM3rectgroNbs6R3djZEKmPNiIJwe9KqOJBGzKKnNZNKvnuvmugBgpq3w/S0ig==
-  dependencies:
-    "@types/node" "*"
 
 "@types/qs@*":
   version "6.9.7"
@@ -980,6 +1007,11 @@ depd@2.0.0, depd@~2.0.0:
   resolved "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz"
   integrity sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==
 
+dequal@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/dequal/-/dequal-2.0.3.tgz#2644214f1997d39ed0ee0ece72335490a7ac67be"
+  integrity sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==
+
 destroy@1.2.0, destroy@~1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/destroy/-/destroy-1.2.0.tgz"
@@ -1440,6 +1472,11 @@ glob-parent@^6.0.2:
   dependencies:
     is-glob "^4.0.3"
 
+glob-to-regexp@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz#c75297087c851b9a578bd217dd59a92f59fe546e"
+  integrity sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==
+
 glob@7.1.6:
   version "7.1.6"
   resolved "https://registry.npmjs.org/glob/-/glob-7.1.6.tgz"
@@ -1640,6 +1677,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
+
+js-cookie@3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.5.tgz#0b7e2fd0c01552c58ba86e0841f94dc2557dcdbc"
+  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
 
 js-yaml@^4.1.0:
   version "4.1.0"
@@ -1950,11 +1992,6 @@ node-fetch@^2.6.7:
   integrity sha512-4I6pdBY1EthSqDmJkiNk3JIT8cswwR9nfeW/cPdUagJYEQG7R95WRH74wpz7ma8Gh/9dI9FP+OU+0E4FvtA55w==
   dependencies:
     whatwg-url "^5.0.0"
-
-nodemailer@^6.9.4:
-  version "6.9.4"
-  resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.4.tgz"
-  integrity sha512-CXjQvrQZV4+6X5wP6ZIgdehJamI63MFoYFGGPtHudWym9qaEHDNdPzaj5bfMCvxG1vhAileSWW90q7nL0N36mA==
 
 nodemon@^3.0.1:
   version "3.1.14"
@@ -2394,7 +2431,7 @@ slash@^3.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-standardwebhooks@1.0.0:
+standardwebhooks@1.0.0, standardwebhooks@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/standardwebhooks/-/standardwebhooks-1.0.0.tgz#5faa23ceacbf9accd344361101d9e3033b64324f"
   integrity sha512-BbHGOQK9olHPMvQNHWul6MYlrRTAOKn03rOe4A8O3CLWhNf4YHBqq2HJKKC+sfqpxiBY52pNeesD6jIiLDz8jg==
@@ -2406,6 +2443,11 @@ statuses@~2.0.1, statuses@~2.0.2:
   version "2.0.2"
   resolved "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz"
   integrity sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==
+
+std-env@^3.9.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/std-env/-/std-env-3.10.0.tgz#d810b27e3a073047b2b5e40034881f5ea6f9c83b"
+  integrity sha512-5GS12FdOZNliM5mAOxFRg7Ir0pWz8MdpYm6AY6VPkGpbA7ZzmbzNcBJQ0GPvvyWgcY7QAhCgf9Uy89I03faLkg==
 
 streamsearch@^1.1.0:
   version "1.1.0"

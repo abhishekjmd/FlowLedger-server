@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { authController } from "../controllers/auth.controller";
+import { requireAuth } from "@/middleware/clerk.middleware";
 
 const router = Router();
 
-router.post("/signup", authController.signup);
-router.post("/login", authController.login);
+router.post("/sync", requireAuth, authController.sync);
 
 export default router;

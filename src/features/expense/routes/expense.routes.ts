@@ -2,11 +2,11 @@ import { Router } from "express";
 import { expenseController } from "../controllers/expense.controller";
 import { groupController } from "../controllers/group.controller";
 import { recurringExpenseController } from "../controllers/recurring-expense.controller";
-import { authMiddleware } from "@/features/auth/middlewares/auth.middleware";
+import { requireAuth } from "@/middleware/clerk.middleware";
 
 const router = Router();
 
-router.use(authMiddleware);
+router.use(requireAuth);
 
 // Expense routes
 router.post("/", expenseController.create);
