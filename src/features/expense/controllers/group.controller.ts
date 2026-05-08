@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { groupService } from "../services/group.service";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { ApiResponse } from "@/utils/ApiResponse";
+import { z } from "zod";
 
 /**
  * @swagger
@@ -27,6 +28,32 @@ export class GroupController {
 		const groupId = Number(req.params.id);
 		const details = await groupService.getGroupDetails(userId, groupId);
 		res.status(200).json(ApiResponse.success("Group details retrieved", details));
+	});
+
+	invite = asyncHandler(async (req: Request, res: Response) => {
+		const userId = res.locals.user.id;
+		const groupId = Number(req.params.id);
+		const data = z.object({ email: z.string().email() }).parse(req.body);
+		const result = await groupService.inviteMember(userId, groupId, data.email);
+		
+		const message = (result as any).isNewUser 
+			? "Invitation link generated" 
+			: "Member added to group";
+			
+		res.status(201).json(ApiResponse.success(message, result, 201));
+	});
+
+	getInviteInfo = asyncHandler(async (req: Request, res: Response) => {
+		const { token } = req.params;
+		const invite = await groupService.getInviteByToken(token);
+		res.status(200).json(ApiResponse.success("Invitation details retrieved", invite));
+	});
+
+	acceptInvite = asyncHandler(async (req: Request, res: Response) => {
+		const userId = res.locals.user.id;
+		const { token } = req.body;
+		const member = await groupService.acceptInvite(userId, token);
+		res.status(201).json(ApiResponse.success("Joined group successfully", member, 201));
 	});
 
 	settle = asyncHandler(async (req: Request, res: Response) => {

@@ -28,6 +28,7 @@ model User {
   expenses             Expense[]
   splits               ExpenseSplit[]
   group_memberships    GroupMember[]
+  sent_invites         GroupInvite[]   @relation("Inviter")
   settlements_made     Settlement[]    @relation("SettlementPayer")
   settlements_received Settlement[]    @relation("SettlementReceiver")
   recurring_expenses   RecurringExpense[]
@@ -105,10 +106,28 @@ model Group {
   members     GroupMember[]
   expenses    Expense[]
   settlements Settlement[]
+  invites     GroupInvite[]
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
   @@index([owner_id])
+}
+
+model GroupInvite {
+  id         Int      @id @default(autoincrement())
+  group_id   Int
+  inviter_id Int
+  email      String?
+  token      String   @unique
+  status     String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
+  expires_at DateTime
+  group      Group    @relation(fields: [group_id], references: [id])
+  inviter    User     @relation("Inviter", fields: [inviter_id], references: [id])
+  created_at DateTime @default(now())
+
+  @@index([group_id])
+  @@index([token])
+  @@index([email])
 }
 
 model GroupMember {

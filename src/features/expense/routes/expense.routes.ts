@@ -27,6 +27,9 @@ router.delete("/recurring/:id", recurringExpenseController.delete);
 router.post("/groups", groupController.create);
 router.get("/groups", groupController.list);
 router.get("/groups/:id", groupController.getDetails);
+router.post("/groups/:id/invite", groupController.invite);
+router.get("/groups/invites/:token", groupController.getInviteInfo);
+router.post("/groups/invites/accept", groupController.acceptInvite);
 router.post("/groups/:id/settle", groupController.settle);
 
 export default router;
