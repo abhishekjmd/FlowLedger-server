@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { clerkMiddleware } from "@clerk/express";
+import { CONFIG } from "@/config";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { loggerMiddleware } from "@/middleware/logger.middleware";
@@ -21,7 +22,10 @@ export const createApp = (): Express => {
 	app.use(cors({ origin: true, credentials: true }));
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
-	app.use(clerkMiddleware());
+	app.use(clerkMiddleware({
+		publishableKey: CONFIG.clerk.publishableKey,
+		secretKey: CONFIG.clerk.secretKey,
+	}));
 	app.use(loggerMiddleware);
 
 	// Swagger Documentation

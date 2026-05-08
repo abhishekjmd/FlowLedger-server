@@ -1,4 +1,4 @@
-import { getAuth } from "@clerk/express";
+import { getAuth, clerkClient } from "@clerk/express";
 import { NextFunction, Request, Response } from "express";
 import prisma from "@/lib/database/prisma";
 import { HttpException } from "@/middleware/error.middleware";
@@ -28,13 +28,12 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		if (!auth?.userId) throw new HttpException("Unauthorized", 401);
 
 		const clerkUserId = auth.userId;
-		const email =
+		let email =
 			(auth.sessionClaims?.email as string | undefined) ??
 			(auth.sessionClaims?.["email_address"] as string | undefined);
-		const fullName =
+		let fullName =
 			(auth.sessionClaims?.name as string | undefined) ??
-			(auth.sessionClaims?.full_name as string | undefined) ??
-			"FlowLedger User";
+			(auth.sessionClaims?.full_name as string | undefined);
 
 		let user = await prisma.user.findUnique({
 			where: { clerk_id: clerkUserId },
@@ -42,7 +41,15 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		});
 
 		if (!user) {
-			if (!email) throw new HttpException("Unable to resolve user email from token", 401);
+			// If missing from claims, fetch from Clerk API
+			if (!email) {
+				const clerkUser = await clerkClient.users.getUser(clerkUserId);
+				email = clerkUser.emailAddresses[0]?.emailAddress;
+				fullName = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "FlowLedger User";
+			}
+
+			if (!email) throw new HttpException("Unable to resolve user email from Clerk", 401);
+			if (!fullName) fullName = "FlowLedger User";
 
 			const username = await createUniqueUsername(email.split("@")[0] || "user");
 			user = await prisma.user.create({
@@ -54,7 +61,19 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 					password: "CLERK_MANAGED",
 					verification_code: 0,
 					verified: true,
+					profile: {
+						create: { avatar_color: "#3B82F6" },
+					},
 				},
+				include: { profile: true },
+			});
+		} else if (!user.profile) {
+			// Back-fill missing profile for existing users
+			await prisma.profile.create({
+				data: { user_id: user.id, avatar_color: "#3B82F6" },
+			});
+			user = await prisma.user.findUnique({
+				where: { id: user.id },
 				include: { profile: true },
 			});
 		}
