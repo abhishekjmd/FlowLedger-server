@@ -20,70 +20,75 @@ export class GroupService {
 					],
 				},
 			},
-			include: { members: { include: { user: { select: { id: true, name: true, email: true } } } } },
+			include: {
+				members: { include: { user: { select: { id: true, name: true, email: true } } } },
+			},
 		});
 	}
 
-  async getGroups(userId: number) {
-    return prisma.group.findMany({
-      where: { members: { some: { user_id: userId } } },
-      include: {
-        members: { include: { user: { select: { id: true, name: true, email: true } } } },
-        _count: { select: { expenses: true } }
-      }
-    });
-  }
+	async getGroups(userId: number) {
+		return prisma.group.findMany({
+			where: { members: { some: { user_id: userId } } },
+			include: {
+				members: { include: { user: { select: { id: true, name: true, email: true } } } },
+				_count: { select: { expenses: true } },
+			},
+		});
+	}
 
-  async getGroupDetails(userId: number, groupId: number) {
-    const group: any = await prisma.group.findUnique({
-      where: { id: groupId },
-      include: {
-        members: { include: { user: { select: { id: true, name: true, email: true } } } },
-        expenses: {
-          include: { category: true, splits: true, user: { select: { name: true } } },
-          orderBy: { date: "desc" },
-          take: 20
-        },
-        settlements: {
-          include: { payer: { select: { name: true } }, receiver: { select: { name: true } } },
-          orderBy: { date: "desc" }, // Fixed: Settlement uses 'date', not 'created_at'
-          take: 10
-        }
-      }
-    });
+	async getGroupDetails(userId: number, groupId: number) {
+		const group: any = await prisma.group.findUnique({
+			where: { id: groupId },
+			include: {
+				members: { include: { user: { select: { id: true, name: true, email: true } } } },
+				expenses: {
+					include: { category: true, splits: true, user: { select: { name: true } } },
+					orderBy: { date: "desc" },
+					take: 20,
+				},
+				settlements: {
+					include: {
+						payer: { select: { name: true } },
+						receiver: { select: { name: true } },
+					},
+					orderBy: { date: "desc" }, // Fixed: Settlement uses 'date', not 'created_at'
+					take: 10,
+				},
+			},
+		});
 
-    if (!group) throw new HttpException("Group not found", 404);
-    
-    const isMember = group.members.some((m: any) => m.user_id === userId);
-    if (!isMember) throw new HttpException("Access denied", 403);
+		if (!group) throw new HttpException("Group not found", 404);
 
-    const balances = group.members.map((member: any) => {
-      const paid = group.expenses
-        .filter((e: any) => e.user_id === member.user_id)
-        .reduce((sum: number, e: any) => sum + Number(e.amount), 0);
-      
-      const owed = group.expenses.reduce((sum: number, e: any) => {
-        const split = e.splits.find((s: any) => s.user_id === member.user_id);
-        return sum + (split ? Number(split.amount) : 0);
-      }, 0);
+		const isMember = group.members.some((m: any) => m.user_id === userId);
+		if (!isMember) throw new HttpException("Access denied", 403);
 
-      const settledPaid = group.settlements
-        .filter((s: any) => s.payer_id === member.user_id)
-        .reduce((sum: number, s: any) => sum + Number(s.amount), 0);
-      
-      const settledReceived = group.settlements
-        .filter((s: any) => s.receiver_id === member.user_id)
-        .reduce((sum: number, s: any) => sum + Number(s.amount), 0);
+		const balances = group.members.map((member: any) => {
+			const paid = group.expenses
+				.filter((e: any) => e.user_id === member.user_id)
+				.reduce((sum: number, e: any) => sum + Number(e.amount), 0);
 
-      return {
-        userId: member.user_id,
-        name: member.user.name,
-        netBalance: (paid + settledPaid) - (owed + settledReceived)
-      };
-    });
+			const owed = group.expenses.reduce((sum: number, e: any) => {
+				const split = e.splits.find((s: any) => s.user_id === member.user_id);
+				return sum + (split ? Number(split.amount) : 0);
+			}, 0);
 
-    return { ...group, balances };
-  }
+			const settledPaid = group.settlements
+				.filter((s: any) => s.payer_id === member.user_id)
+				.reduce((sum: number, s: any) => sum + Number(s.amount), 0);
+
+			const settledReceived = group.settlements
+				.filter((s: any) => s.receiver_id === member.user_id)
+				.reduce((sum: number, s: any) => sum + Number(s.amount), 0);
+
+			return {
+				userId: member.user_id,
+				name: member.user.name,
+				netBalance: paid + settledPaid - (owed + settledReceived),
+			};
+		});
+
+		return { ...group, balances };
+	}
 
 	async settleGroup(
 		userId: number,

@@ -4,11 +4,7 @@ import { CONFIG } from "@/config";
 export class SupabaseService {
 	private readonly supabase = createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
 
-	public async uploadImage(
-		buffer: Buffer,
-		filename: string,
-		mimetype: string,
-	): Promise<string> {
+	public async uploadImage(buffer: Buffer, filename: string, mimetype: string): Promise<string> {
 		const path = `avatars/${filename}`;
 
 		const { error: uploadError } = await this.supabase.storage
@@ -31,9 +27,7 @@ export class SupabaseService {
 	public async deleteImage(filename: string): Promise<void> {
 		const path = `avatars/${filename}`;
 
-		const { error: deleteError } = await this.supabase.storage
-			.from("avatars")
-			.remove([path]);
+		const { error: deleteError } = await this.supabase.storage.from("avatars").remove([path]);
 
 		if (deleteError) {
 			throw new Error(`Failed to delete image: ${deleteError.message}`);

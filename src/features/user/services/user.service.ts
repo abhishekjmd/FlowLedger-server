@@ -54,11 +54,7 @@ export class UserService {
 
 		const fileName = `${user.username}-${user.id}-${Date.now()}`;
 
-		const url = await supabaseService.uploadImage(
-			avatar.buffer,
-			fileName,
-			avatar.mimetype,
-		);
+		const url = await supabaseService.uploadImage(avatar.buffer, fileName, avatar.mimetype);
 
 		return await prisma.profile.update({
 			where: { user_id: userId },

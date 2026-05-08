@@ -2,6 +2,17 @@ import prisma from "@/lib/database/prisma";
 import { HttpException } from "@/middleware/error.middleware";
 import { Prisma } from "@prisma/client";
 
+const DEFAULT_CATEGORIES = [
+	{ name: "Food", icon: "fast-food-outline", color: "#F59E0B" },
+	{ name: "Transport", icon: "car-outline", color: "#8B5CF6" },
+	{ name: "Shopping", icon: "bag-outline", color: "#F43F5E" },
+	{ name: "Health", icon: "medical-outline", color: "#10B981" },
+	{ name: "Entertainment", icon: "film-outline", color: "#EC4899" },
+	{ name: "Bills", icon: "receipt-outline", color: "#6366F1" },
+	{ name: "Travel", icon: "airplane-outline", color: "#0EA5E9" },
+	{ name: "Education", icon: "school-outline", color: "#14B8A6" },
+];
+
 export class ExpenseService {
 	async createExpense(userId: number, data: any) {
 		return prisma.$transaction(async (tx) => {
@@ -73,15 +84,15 @@ export class ExpenseService {
 			prisma.expense.count({ where }),
 		]);
 
-		return { 
-      expenses, 
-      pagination: {
-        total, 
-        page: Number(page), 
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit))
-      }
-    };
+		return {
+			expenses,
+			pagination: {
+				total,
+				page: Number(page),
+				limit: Number(limit),
+				totalPages: Math.ceil(total / Number(limit)),
+			},
+		};
 	}
 
 	async updateExpense(userId: number, expenseId: number, data: any) {
@@ -136,17 +147,25 @@ export class ExpenseService {
 			.filter((c) => c.count > 0);
 	}
 
-  async getCategories() {
-    return prisma.category.findMany();
-  }
+	async getCategories() {
+		const existing = await prisma.category.findMany({ orderBy: { id: "asc" } });
+		if (existing.length > 0) return existing;
 
-  async getGroups(userId: number) {
-    return prisma.group.findMany({
-      where: {
-        members: { some: { user_id: userId } }
-      }
-    });
-  }
+		await prisma.category.createMany({
+			data: DEFAULT_CATEGORIES,
+			skipDuplicates: true,
+		});
+
+		return prisma.category.findMany({ orderBy: { id: "asc" } });
+	}
+
+	async getGroups(userId: number) {
+		return prisma.group.findMany({
+			where: {
+				members: { some: { user_id: userId } },
+			},
+		});
+	}
 }
 
 export const expenseService = new ExpenseService();

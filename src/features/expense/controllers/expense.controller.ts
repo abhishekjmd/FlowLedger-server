@@ -57,16 +57,16 @@ export class ExpenseController {
 		res.status(200).json(ApiResponse.success("Expense deleted successfully"));
 	});
 
-  listCategories = asyncHandler(async (req: Request, res: Response) => {
-    const categories = await expenseService.getCategories();
-    res.status(200).json(ApiResponse.success("Categories retrieved", categories));
-  });
+	listCategories = asyncHandler(async (req: Request, res: Response) => {
+		const categories = await expenseService.getCategories();
+		res.status(200).json(ApiResponse.success("Categories retrieved", categories));
+	});
 
-  listGroups = asyncHandler(async (req: Request, res: Response) => {
-    const userId = res.locals.user.id;
-    const groups = await expenseService.getGroups(userId);
-    res.status(200).json(ApiResponse.success("Groups retrieved", groups));
-  });
+	listGroups = asyncHandler(async (req: Request, res: Response) => {
+		const userId = res.locals.user.id;
+		const groups = await expenseService.getGroups(userId);
+		res.status(200).json(ApiResponse.success("Groups retrieved", groups));
+	});
 }
 
 export const expenseController = new ExpenseController();
