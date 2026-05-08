@@ -14,7 +14,7 @@ export class GroupService {
 				members: {
 					create: [
 						{ user_id: userId }, // Owner is always a member
-						...data.member_ids
+						...(data.member_ids ?? [])
 							.filter((id) => id !== userId)
 							.map((id) => ({ user_id: id })),
 					],

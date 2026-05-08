@@ -50,7 +50,7 @@ export class ExpenseService {
 	}
 
 	async getExpenses(userId: number, filters: any) {
-		const { group_id, category_id, startDate, endDate, page = 1, limit = 10 } = filters;
+		const { group_id, category_id, startDate, endDate, title, page = 1, limit = 10 } = filters;
 		const skip = (page - 1) * limit;
 
 		const where: Prisma.ExpenseWhereInput = {
@@ -63,6 +63,9 @@ export class ExpenseService {
 
 		if (group_id) where.group_id = Number(group_id);
 		if (category_id) where.category_id = Number(category_id);
+		if (typeof title === "string" && title.trim()) {
+			where.title = { contains: title.trim(), mode: "insensitive" };
+		}
 		if (startDate || endDate) {
 			where.date = {};
 			if (startDate) where.date.gte = new Date(startDate);

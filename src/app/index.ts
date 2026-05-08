@@ -22,10 +22,12 @@ export const createApp = (): Express => {
 	app.use(cors({ origin: true, credentials: true }));
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
-	app.use(clerkMiddleware({
-		publishableKey: CONFIG.clerk.publishableKey,
-		secretKey: CONFIG.clerk.secretKey,
-	}));
+	app.use(
+		clerkMiddleware({
+			publishableKey: CONFIG.clerk.publishableKey,
+			secretKey: CONFIG.clerk.secretKey,
+		}),
+	);
 	app.use(loggerMiddleware);
 
 	// Swagger Documentation

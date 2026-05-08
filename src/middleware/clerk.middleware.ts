@@ -12,9 +12,9 @@ const sanitizeUsername = (value: string) =>
 		.slice(0, 20) || "user";
 
 const createUniqueUsername = async (base: string): Promise<string> => {
-	let username = sanitizeUsername(base);
+	const username = sanitizeUsername(base);
 	let suffix = 0;
-	while (true) {
+	for (;;) {
 		const candidate = suffix === 0 ? username : `${username}_${suffix}`;
 		const exists = await prisma.user.findUnique({ where: { username: candidate } });
 		if (!exists) return candidate;
@@ -26,16 +26,18 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 	const requestId = Math.random().toString(36).substring(7);
 	try {
 		const auth = getAuth(req);
-		
+
 		if (!auth?.userId) {
 			console.warn(`[AUTH ${requestId}] No userId in auth object.`);
 			// Log just the existence of headers to avoid leaking secrets in logs unless necessary
-			console.warn(`[AUTH ${requestId}] Authorization Header present: ${!!req.headers.authorization}`);
+			console.warn(
+				`[AUTH ${requestId}] Authorization Header present: ${!!req.headers.authorization}`,
+			);
 			throw new HttpException("Unauthorized: Missing UserID", 401);
 		}
 
 		const clerkUserId = auth.userId;
-		
+
 		// Attempt to find user in database
 		let user = await prisma.user.findUnique({
 			where: { clerk_id: clerkUserId },
@@ -44,7 +46,22 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 
 		if (!user) {
 			console.log(`[AUTH ${requestId}] User ${clerkUserId} not found in DB. Syncing...`);
-			
+
+			let preferredUsername: string | undefined;
+			let clerkUser: Awaited<ReturnType<typeof clerkClient.users.getUser>> | undefined;
+
+			try {
+				clerkUser = await clerkClient.users.getUser(clerkUserId);
+				preferredUsername =
+					typeof clerkUser.unsafeMetadata?.username === "string"
+						? clerkUser.unsafeMetadata.username
+						: undefined;
+			} catch (clerkError: any) {
+				console.warn(
+					`[AUTH ${requestId}] Could not fetch Clerk user metadata: ${clerkError.message}`,
+				);
+			}
+
 			// Resolve email and name
 			let email =
 				(auth.sessionClaims?.email as string | undefined) ??
@@ -53,12 +70,28 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 				(auth.sessionClaims?.name as string | undefined) ??
 				(auth.sessionClaims?.full_name as string | undefined);
 
+			if (clerkUser) {
+				email = email ?? clerkUser.emailAddresses[0]?.emailAddress;
+				fullName =
+					(fullName ??
+						`${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim()) ||
+					"FlowLedger User";
+			}
+
 			if (!email) {
-				console.log(`[AUTH ${requestId}] Email missing from claims, fetching from Clerk API...`);
+				console.log(
+					`[AUTH ${requestId}] Email missing from claims, fetching from Clerk API...`,
+				);
 				try {
-					const clerkUser = await clerkClient.users.getUser(clerkUserId);
+					clerkUser = await clerkClient.users.getUser(clerkUserId);
 					email = clerkUser.emailAddresses[0]?.emailAddress;
-					fullName = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "FlowLedger User";
+					fullName =
+						`${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ||
+						"FlowLedger User";
+					preferredUsername =
+						typeof clerkUser.unsafeMetadata?.username === "string"
+							? clerkUser.unsafeMetadata.username
+							: preferredUsername;
 				} catch (clerkError: any) {
 					console.error(`[AUTH ${requestId}] Clerk API Error:`, clerkError.message);
 					throw new HttpException("Failed to synchronize user data from Clerk", 401);
@@ -71,7 +104,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 			}
 
 			// Create user if doesn't exist
-			const username = await createUniqueUsername(email.split("@")[0] || "user");
+			const username = await createUniqueUsername(
+				preferredUsername || email.split("@")[0] || "user",
+			);
 			try {
 				user = await prisma.user.create({
 					data: {
@@ -108,13 +143,12 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 	} catch (error: any) {
 		const statusCode = error instanceof HttpException ? error.statusCode : 401;
 		const message = error.message || "Unauthorized";
-		
+
 		console.error(`[AUTH ${requestId}] Error ${statusCode}: ${message}`);
 		if (statusCode === 500) {
 			console.error(error);
 		}
-		
+
 		next(new HttpException(message, statusCode));
 	}
 };
-
