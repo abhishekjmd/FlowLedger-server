@@ -1,4 +1,4 @@
-import { getAuth, clerkClient } from "@clerk/express";
+import { getAuth } from "@clerk/express";
 import { NextFunction, Request, Response } from "express";
 import prisma from "@/lib/database/prisma";
 import { HttpException } from "@/middleware/error.middleware";
@@ -48,39 +48,40 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 			console.log(`[AUTH ${requestId}] User ${clerkUserId} not found in DB. Syncing...`);
 
 			// Resolve email and name
-			let email =
+			const emailClaim =
 				(auth.sessionClaims?.email as string | undefined) ??
-				(auth.sessionClaims?.["email_address"] as string | undefined);
+				(auth.sessionClaims?.["email_address"] as string | undefined) ??
+				(auth.sessionClaims?.primaryEmail as string | undefined);
+			const email = emailClaim?.toLowerCase().trim();
 			let fullName =
 				(auth.sessionClaims?.name as string | undefined) ??
-				(auth.sessionClaims?.full_name as string | undefined);
-
-			if (!email) {
-				console.log(
-					`[AUTH ${requestId}] Email missing from claims, fetching from Clerk API...`,
-				);
-				try {
-					const clerkUser = await clerkClient.users.getUser(clerkUserId);
-					email = clerkUser.emailAddresses[0]?.emailAddress;
-					fullName =
-						`${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ||
-						"FlowLedger User";
-				} catch (clerkError: any) {
-					console.error(`[AUTH ${requestId}] Clerk API Error:`, clerkError.message);
-					throw new HttpException("Failed to synchronize user data from Clerk", 401);
-				}
-			}
+				(auth.sessionClaims?.full_name as string | undefined) ??
+				(auth.sessionClaims?.fullName as string | undefined);
 
 			if (!email) {
 				console.error(`[AUTH ${requestId}] Could not resolve email for ${clerkUserId}`);
-				throw new HttpException("Unable to resolve user email from Clerk", 401);
+				throw new HttpException("Unable to resolve user email from Clerk token", 401);
 			}
 
-			// Create user if doesn't exist
+			// Create or link user if it doesn't exist. Upsert is atomic on email, so
+			// simultaneous first requests for the same Clerk user do not race here.
 			const username = await createUniqueUsername(email.split("@")[0] || "user");
 			try {
-				user = await prisma.user.create({
-					data: {
+				const wasCreated = !(await prisma.user.findUnique({ where: { email } }));
+				user = await prisma.user.upsert({
+					where: { email },
+					update: {
+						clerk_id: clerkUserId,
+						name: fullName || "FlowLedger User",
+						verified: true,
+						profile: {
+							upsert: {
+								create: { avatar_color: "#3B82F6" },
+								update: {},
+							},
+						},
+					},
+					create: {
 						clerk_id: clerkUserId,
 						email,
 						name: fullName || "FlowLedger User",
@@ -94,16 +95,20 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 					},
 					include: { profile: true },
 				});
-				console.log(`[AUTH ${requestId}] Created new user: ${user.username}`);
+				if (wasCreated) {
+					console.log(`[AUTH ${requestId}] Created new user: ${user.username}`);
+				}
 
 				// Auto-join groups from pending invites
 				try {
 					const pendingInvites = await prisma.groupInvite.findMany({
-						where: { email: email.toLowerCase().trim(), status: "PENDING" },
+						where: { email, status: "PENDING" },
 					});
 
 					if (pendingInvites.length > 0) {
-						console.log(`[AUTH ${requestId}] Found ${pendingInvites.length} pending invites for ${email}. Auto-joining...`);
+						console.log(
+							`[AUTH ${requestId}] Found ${pendingInvites.length} pending invites for ${email}. Auto-joining...`,
+						);
 						await prisma.groupMember.createMany({
 							data: pendingInvites.map((invite) => ({
 								group_id: invite.group_id,
@@ -118,17 +123,23 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 						});
 					}
 				} catch (inviteError) {
-					console.error(`[AUTH ${requestId}] Error processing pending invites:`, inviteError);
+					console.error(
+						`[AUTH ${requestId}] Error processing pending invites:`,
+						inviteError,
+					);
 					// Don't fail the login if invite processing fails
 				}
 			} catch (prismaError: any) {
 				// Handle race condition if user was created by another request
 				if (prismaError.code === "P2002") {
 					user = await prisma.user.findUnique({
-						where: { clerk_id: clerkUserId },
+						where: { email },
 						include: { profile: true },
 					});
-					if (user) return next();
+					if (user) {
+						res.locals.user = user;
+						return next();
+					}
 				}
 				console.error(`[AUTH ${requestId}] Prisma Error:`, prismaError);
 				throw new HttpException("Internal Server Error during user synchronization", 500);
