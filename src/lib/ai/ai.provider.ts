@@ -2,6 +2,14 @@ export interface InsightProvider {
 	generateInsights(data: any): Promise<string[]>;
 }
 
+const formatINR = (value: number) =>
+	new Intl.NumberFormat("en-IN", {
+		style: "currency",
+		currency: "INR",
+		currencyDisplay: "symbol",
+		maximumFractionDigits: 2,
+	}).format(Number.isFinite(value) ? value : 0);
+
 export class RuleBasedProvider implements InsightProvider {
 	async generateInsights(data: any): Promise<string[]> {
 		const insights: string[] = [];
@@ -25,7 +33,7 @@ export class RuleBasedProvider implements InsightProvider {
 		if (categories && categories.length > 0) {
 			const top = categories.sort((a: any, b: any) => b.amount - a.amount)[0];
 			insights.push(
-				`Your highest spending category this month is ${top.name} ($${top.amount}).`,
+				`Your highest spending category this month is ${top.name} (${formatINR(Number(top.amount))}).`,
 			);
 		}
 
